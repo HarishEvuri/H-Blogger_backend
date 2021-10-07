@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 
 import userRoutes from "./routes/userRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
+import draftRoutes from "./routes/draftRoutes.js";
 
 dotenv.config();
 
@@ -14,10 +15,16 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 
 app.use("/user", userRoutes);
 app.use("/blogs", blogRoutes);
+app.use("/drafts", draftRoutes);
 
 mongoose
   .connect(process.env.MDB_CONNECT, {

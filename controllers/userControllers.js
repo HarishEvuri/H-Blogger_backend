@@ -24,7 +24,7 @@ export const signup = async (req, res) => {
   const existingUser = await User.findOne({ email: email });
 
   if (existingUser)
-    return res.status(205).json({
+    return res.status(203).json({
       message: "An account with this email already exists!",
     });
 
@@ -62,13 +62,13 @@ export const signin = async (req, res) => {
 
   if (!email || !password)
     return res
-      .status(400)
+      .status(203)
       .json({ message: "Please Enter all required fields!" });
 
   const existingUser = await User.findOne({ email });
 
   if (!existingUser)
-    return res.status(400).json({ message: "Invalid email or password!" });
+    return res.status(203).json({ message: "Invalid email or password!" });
 
   const passwordCorrect = await bcrypt.compare(
     password,
@@ -76,7 +76,7 @@ export const signin = async (req, res) => {
   );
 
   if (!passwordCorrect)
-    return res.status(400).json({ message: "Invalid email or password!" });
+    return res.status(203).json({ message: "Invalid email or password!" });
 
   const token = jwt.sign({ user: existingUser._id }, process.env.JWT_SECRET);
 

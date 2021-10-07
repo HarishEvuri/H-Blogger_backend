@@ -21,7 +21,7 @@ export const getBlogs = async (req, res) => {
       numberOfPages: Math.ceil(total / LIMIT),
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(203).json({ message: error.message });
   }
 };
 
@@ -32,7 +32,7 @@ export const getBlog = async (req, res) => {
     const blog = await Blog.findById(id);
     res.status(200).json(blog);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(203).json({ message: error.message });
   }
 };
 
@@ -47,7 +47,7 @@ export const getBlogsbyCreator = async (req, res) => {
 
     res.status(200).json(blogs);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(203).json({ message: error.message });
   }
 };
 
@@ -55,9 +55,11 @@ export const createBlog = async (req, res) => {
   const blog = req.body;
   const creator = await User.findById(req.userId);
 
-  if (!blog.title || !blog.description || !blog.tags)
+  if (!creator) return res.staus(203).json({ message: "Invalid User !!" });
+
+  if (!blog.title || !blog.description)
     return res
-      .status(400)
+      .status(203)
       .json({ message: "Please Enter all required fields!" });
 
   const newBlog = new Blog({
@@ -68,6 +70,7 @@ export const createBlog = async (req, res) => {
     creatorId: creator._id,
     thumbnail: blog.thumbnail,
     creatorName: `${creator.firstName} ${creator.lastName}`,
+    creatorImage: creator.image,
   });
 
   await newBlog.save();
@@ -79,12 +82,17 @@ export const updateBlog = async (req, res) => {
 
   const blog = await Blog.findById(id);
   if (!blog)
-    return res.status(400).json({ message: `No Blog with the id : ${id}` });
+    return res.status(203).json({ message: `No Blog with the id : ${id}` });
 
   if (blog.creatorId !== req.userId)
     return res
-      .status(400)
+      .status(203)
       .json({ message: `You have no access to this blog!` });
+
+  if (!req.body.title || !req.body.description || !req.body.tags)
+    return res
+      .status(203)
+      .json({ message: "Please Enter all required fields!" });
 
   blog.title = req.body.title;
   blog.description = req.body.description;
@@ -102,11 +110,11 @@ export const deleteBlog = async (req, res) => {
 
   const blog = await Blog.findById(id);
   if (!blog)
-    return res.status(400).json({ message: `No Blog with the id : ${id}` });
+    return res.status(203).json({ message: `No Blog with the id : ${id}` });
 
   if (blog.creatorId !== req.userId)
     return res
-      .status(400)
+      .status(203)
       .json({ message: `You have no access to this blog!` });
 
   await blog.delete();
@@ -117,6 +125,8 @@ export const likeBlog = async (req, res) => {
   const { id } = req.params;
 
   const blog = await Blog.findById(id);
+  if (!blog)
+    return res.status(203).json({ message: `No Blog with the id : ${id}` });
 
   const index = blog.likes.findIndex((id) => id === String(req.userId));
   if (index === -1) {

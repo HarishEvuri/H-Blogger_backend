@@ -7,7 +7,7 @@ const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   body: String,
-  tags: [String],
+  tags: { type: Array, default: [] },
   thumbnail: String,
   likes: { type: [String], default: [] },
   comments: { type: Array, default: [] },
